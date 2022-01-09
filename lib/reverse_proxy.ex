@@ -25,6 +25,7 @@ defmodule ReverseProxy do
   @spec call(Plug.Conn.t, Keyword.t) :: Plug.Conn.t
   def call(conn, opts) do
     upstream = Keyword.get(opts, :upstream, [])
+
     callback = fn conn ->
       runner = Application.get_env(:reverse_proxy, :runner, ReverseProxy.Runner)
       runner.retreive(conn, upstream)
@@ -43,9 +44,13 @@ defmodule ReverseProxy do
                            | {:ok, pid, term}
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
-
-    children = [
+    cowboy_opts = [
+      scheme: :http,
+      plug: ReverseProxy.Router,
+      options: [port: (System.get_env("PORT") || "4000") |> String.to_integer()]
     ]
+
+    children = [{Plug.Cowboy, cowboy_opts}]
 
     opts = [strategy: :one_for_one, name: ReverseProxy.Supervisor]
     Supervisor.start_link(children, opts)

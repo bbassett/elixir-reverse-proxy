@@ -22,16 +22,18 @@ defmodule ReverseProxy.Mixfile do
   end
 
   defp deps do
-    [{:plug, "~> 1.2"},
-     {:cowboy, "~> 1.0"},
-     {:httpoison, "~> 0.9"},
+    [{:plug, "~> 1.12"},
+     {:plug_cowboy, "~> 2.0"},
+     {:cowboy, "~> 2.9"},
+     {:httpoison, "~> 1.8"},
 
-     {:earmark, "~> 1.0", only: :dev},
-     {:ex_doc, "~> 0.14", only: :dev},
+     {:earmark, "~> 1.4", only: :dev},
+     {:ex_doc, "~> 0.26", only: :dev},
+     {:rl, github: "simplecastapps/rl", only: :dev},
 
-     {:credo, "~> 0.5", only: [:dev, :test]},
-     {:excoveralls, "~> 0.5", only: :test},
-     {:dialyze, "~> 0.2", only: :test}]
+     {:credo, "~> 1.6", only: [:dev, :test]},
+     {:excoveralls, "~> 0.14.4", only: :test},
+     {:dialyze, "~> 0.2.1", only: :test}]
   end
 
   defp description do

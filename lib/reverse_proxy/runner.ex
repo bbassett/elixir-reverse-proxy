@@ -17,8 +17,8 @@ defmodule ReverseProxy.Runner do
 
   @spec retreive(Conn.t, upstream, Atom.t) :: Conn.t
   def retreive(conn, servers, client \\ HTTPoison) do
-    server = upstream_select(servers)
-    {method, url, body, headers} = prepare_request(server, conn)
+    server = upstream_select(servers) |> IO.inspect(label: :upstream_select)
+    {method, url, body, headers} = prepare_request(server, conn) |> IO.inspect(label: :prepare_request)
 
     method
       |> client.request(url, body, headers, timeout: 5_000)
@@ -98,6 +98,6 @@ defmodule ReverseProxy.Runner do
   end
 
   defp upstream_select(servers) do
-    servers |> hd
+    servers |> IO.inspect() |> hd
   end
 end

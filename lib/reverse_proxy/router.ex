@@ -6,26 +6,25 @@ defmodule ReverseProxy.Router do
 
   use Plug.Router
 
-  @default_used false
-
   plug :match
   plug :dispatch
 
-  for {host, upstream} <- Application.get_env(:reverse_proxy, :upstreams, []) do
-    @upstream upstream
-    host =
-      if host == :_ do
-        @default_used true
-        nil
-      else
-        host
-      end
-    match _, host: host do
-      ReverseProxy.call(conn, upstream: @upstream)
-    end
-  end
+  # I Switched this to work at runtime. This way I can use Heroku API
+  # and configure the routes in memory, and do it with hooks, rather
+  # than using configs and rebuilding the API after every change
+  match _ do
+    parts = conn.host |> String.split(".")
 
-  unless @default_used do
-    match _, do: conn |> send_resp(400, "Bad Request")
+    new = parts |> Enum.take(Enum.count(parts) - 2)
+      |> Enum.join(".")
+
+    upstream = Application.get_env(:reverse_proxy, :upstreams)
+    |> Map.get("#{new}.")
+
+    if upstream do
+      ReverseProxy.call(conn, upstream: upstream)
+    else
+      conn |> send_resp(400, "Bad Request")
+    end
   end
 end
