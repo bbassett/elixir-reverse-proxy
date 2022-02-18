@@ -1,7 +1,7 @@
 defmodule ReverseProxy.Router do
   @moduledoc """
-  A Plug for routing requests to either be served from cache
-  or from a set of upstream servers.
+  A Plug for routing requests to either be served
+  from a set of upstream servers.
   """
 
   use Plug.Router
@@ -13,13 +13,8 @@ defmodule ReverseProxy.Router do
   # and configure the routes in memory, and do it with hooks, rather
   # than using configs and rebuilding the API after every change
   match _ do
-    parts = conn.host |> String.split(".")
-
-    new = parts |> Enum.take(Enum.count(parts) - 2)
-      |> Enum.join(".")
-
     upstream = Application.get_env(:reverse_proxy, :upstreams)
-    |> Map.get("#{new}.")
+    |> Map.get(conn.host)
 
     if upstream do
       ReverseProxy.call(conn, upstream: upstream)
